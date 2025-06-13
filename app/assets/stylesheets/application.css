@@ -1,10 +1,66 @@
-/*
- * This is a manifest file that'll be compiled into application.css.
- *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
- */
+body {
+    background-color: #f8f9fa;
+  }
+  
+  .card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: none;
+  }
+  
+  .card-header {
+    border-bottom: 2px solid #e9ecef;
+  }
+  
+  .table th {
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+  }
+  
+  .badge {
+    padding: 0.5em 0.75em;
+  }
+  
+  #macro-preview {
+    transition: all 0.3s ease;
+  }
+  
+  #macro-preview h2, #macro-preview h3 {
+    font-weight: 700;
+  }
+  
+  #food_select optgroup {
+    font-weight: bold;
+    color: #495057;
+  }
+  
+  @media (max-width: 768px) {
+    .table {
+      font-size: 0.875rem;
+    }
+    
+    .badge {
+      font-size: 0.75rem;
+    }
+  }
+  
+  .was-validated .form-control:invalid {
+    border-color: #dc3545;
+  }
+  
+  .was-validated .form-control:valid {
+    border-color: #28a745;
+  }
+  
+  .btn {
+    transition: all 0.2s ease;
+  }
+  
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+  }
