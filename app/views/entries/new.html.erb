@@ -6,7 +6,7 @@
       </div>
       
       <div class="card-body">
-        <%= form_with model: @entry, class: "needs-validation", novalidate: true do |form| %>
+        <%= form_with model: @entry, html: { "data-controller" => "custom-food-form", class: "needs-validation", novalidate: true } do |form| %>
           <% if @entry.errors.any? %>
             <div class="alert alert-danger">
               <ul class="mb-0">
@@ -18,7 +18,7 @@
           <% end %>
 
           <!-- Food Selection -->
-          <div class="mb-3">
+          <div class="mb-3" data-custom-food-form-target="foodSelect">
             <%= form.label :food_id, "Select Food", class: "form-label" %>
             <select name="entry[food_id]" id="food_select" class="form-select">
               <option value="">-- Select a food from database --</option>
@@ -39,10 +39,33 @@
           </div>
 
           <div class="mb-3">
-            <%= form.label :food_name, "Or enter custom food name", class: "form-label" %>
-            <%= form.text_field :food_name, class: "form-control", 
-                                placeholder: "e.g., Homemade Salad" %>
-            <small class="text-muted">Use this if the food is not in our database</small>
+            <label class="form-check-label">
+              <%= form.check_box :custom, { "data-action": "change->custom-food-form#toggle" }, "1", "0" %>
+              Enter a custom food
+            </label>
+          </div>
+
+          <div data-custom-food-form-target="customFields" class="d-none">
+            <div class="mb-3">
+              <%= form.label :food_name, 'Custom Food Name', class: 'form-label' %>
+              <%= form.text_field :food_name, class: 'form-control' %>
+            </div>
+            <div class="mb-3">
+              <%= form.label :custom_calories_per_100g, class: 'form-label' %>
+              <%= form.number_field :custom_calories_per_100g, class: 'form-control', step: :any %>
+            </div>
+            <div class="mb-3">
+              <%= form.label :custom_carbs_per_100g, class: 'form-label' %>
+              <%= form.number_field :custom_carbs_per_100g, class: 'form-control', step: :any %>
+            </div>
+            <div class="mb-3">
+              <%= form.label :custom_protein_per_100g, class: 'form-label' %>
+              <%= form.number_field :custom_protein_per_100g, class: 'form-control', step: :any %>
+            </div>
+            <div class="mb-3">
+              <%= form.label :custom_fats_per_100g, class: 'form-label' %>
+              <%= form.number_field :custom_fats_per_100g, class: 'form-control', step: :any %>
+            </div>
           </div>
 
           <!-- Amount in grams -->

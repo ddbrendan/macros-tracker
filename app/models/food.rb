@@ -6,12 +6,12 @@ class Food < ApplicationRecord
     def calculate_macros(grams)
       factor = grams / 100.0
       {
-        calories: (calories_per_100g * factor).round(1),
-        carbs: (carbs_per_100g * factor).round(1),
-        protein: (protein_per_100g * factor).round(1),
-        fats: (fats_per_100g * factor).round(1)
+        calories: (calories_per_100g * factor || 0).round(1),
+        carbs: (carbs_per_100g * factor || 0).round(1),
+        protein: (protein_per_100g * factor || 0).round(1),
+        fats: (fats_per_100g * factor || 0).round(1)
       }
     end
-    
+
     scope :search_by_name, ->(query) { where("LOWER(name) LIKE ?", "%#{query.downcase}%") }
   end

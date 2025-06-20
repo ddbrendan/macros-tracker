@@ -52,8 +52,16 @@ class EntriesController < ApplicationController
   end
 
   private
-
   def entry_params
-    params.require(:entry).permit(:food_id, :food_name, :grams, :date)
+    params.require(:entry).permit(
+      :food_id,
+      :food_name,
+      :grams,
+      :date,
+      :custom_calories_per_100g,
+      :custom_carbs_per_100g,
+      :custom_protein_per_100g,
+      :custom_fats_per_100g
+    )
   end
 end
