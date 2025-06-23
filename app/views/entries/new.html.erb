@@ -4,7 +4,7 @@
       <div class="card-header">
         <h3 class="card-title mb-0">Add Food Entry</h3>
       </div>
-      
+
       <div class="card-body">
         <%= form_with model: @entry, html: { "data-controller" => "custom-food-form", class: "needs-validation", novalidate: true } do |form| %>
           <% if @entry.errors.any? %>
@@ -17,15 +17,18 @@
             </div>
           <% end %>
 
-          <!-- Food Selection -->
-          <div class="mb-3" data-custom-food-form-target="foodSelect">
+          <div class="mb-3">
             <%= form.label :food_id, "Select Food", class: "form-label" %>
-            <select name="entry[food_id]" id="food_select" class="form-select">
+            <select name="entry[food_id]"
+                    id="food_select"
+                    class="form-select"
+                    data-custom-food-form-target="foodSelect"
+                    data-action="change->custom-food-form#clearCustomFood">
               <option value="">-- Select a food from database --</option>
               <% @food_categories.each do |category| %>
                 <optgroup label="<%= category %>">
                   <% @foods.where(category: category).each do |food| %>
-                    <option value="<%= food.id %>" 
+                    <option value="<%= food.id %>"
                             data-calories="<%= food.calories_per_100g %>"
                             data-carbs="<%= food.carbs_per_100g %>"
                             data-protein="<%= food.protein_per_100g %>"
@@ -40,15 +43,17 @@
 
           <div class="mb-3">
             <label class="form-check-label">
+              <%# The data-action triggers the 'toggle' method in the controller %>
               <%= form.check_box :custom, { "data-action": "change->custom-food-form#toggle" }, "1", "0" %>
               Enter a custom food
             </label>
           </div>
 
+          <%# This section's visibility is controlled by the 'toggle' method %>
           <div data-custom-food-form-target="customFields" class="d-none">
             <div class="mb-3">
               <%= form.label :food_name, 'Custom Food Name', class: 'form-label' %>
-              <%= form.text_field :food_name, class: 'form-control' %>
+              <%= form.text_field :food_name, class: 'form-control', "data-custom-food-form-target": "foodNameInput" %>
             </div>
             <div class="mb-3">
               <%= form.label :custom_calories_per_100g, class: 'form-label' %>
@@ -68,47 +73,45 @@
             </div>
           </div>
 
-          <!-- Amount in grams -->
           <div class="mb-3">
             <%= form.label :grams, "Amount (grams)", class: "form-label" %>
-            <%= form.number_field :grams, class: "form-control", 
-                                  placeholder: "e.g., 150", 
+            <%= form.number_field :grams, class: "form-control",
+                                  placeholder: "e.g., 150",
                                   required: true,
                                   step: 0.1,
                                   min: 0.1,
-                                  id: "grams_input" %>
+                                  "data-custom-food-form-target": "gramsInput",
+                                  "data-action": "input->custom-food-form#updateMacros" %>
           </div>
 
-          <!-- Date -->
           <div class="mb-4">
             <%= form.label :date, class: "form-label" %>
             <%= form.date_field :date, class: "form-control", required: true %>
           </div>
 
-          <!-- Macro Preview -->
-          <div class="card bg-light mb-4" id="macro-preview" style="display: none;">
+          <div class="card bg-light mb-4" data-custom-food-form-target="macroPreview" style="display: none;">
             <div class="card-body">
               <h5 class="card-title mb-3">Nutritional Information</h5>
               <div class="row">
                 <div class="col-md-3 text-center">
-                  <h2 class="text-primary mb-0" id="preview-calories">0</h2>
+                  <h2 class="text-primary mb-0" data-custom-food-form-target="previewCalories">0</h2>
                   <small class="text-muted">Calories</small>
                 </div>
                 <div class="col-md-3 text-center">
-                  <h3 class="text-info mb-0" id="preview-carbs">0g</h3>
+                  <h3 class="text-info mb-0" data-custom-food-form-target="previewCarbs">0g</h3>
                   <small class="text-muted">Carbs</small>
                 </div>
                 <div class="col-md-3 text-center">
-                  <h3 class="text-success mb-0" id="preview-protein">0g</h3>
+                  <h3 class="text-success mb-0" data-custom-food-form-target="previewProtein">0g</h3>
                   <small class="text-muted">Protein</small>
                 </div>
                 <div class="col-md-3 text-center">
-                  <h3 class="text-warning mb-0" id="preview-fats">0g</h3>
+                  <h3 class="text-warning mb-0" data-custom-food-form-target="previewFats">0g</h3>
                   <small class="text-muted">Fats</small>
                 </div>
               </div>
               <hr>
-              <small class="text-muted" id="per-100g-info"></small>
+              <small class="text-muted" data-custom-food-form-target="per100gInfo"></small>
             </div>
           </div>
 
@@ -118,62 +121,9 @@
         <% end %>
       </div>
     </div>
-    
+
     <div class="text-center mt-3">
       <%= link_to "← Back to Tracker", root_path, class: "btn btn-outline-secondary" %>
     </div>
   </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const foodSelect = document.getElementById('food_select');
-  const gramsInput = document.getElementById('grams_input');
-  const macroPreview = document.getElementById('macro-preview');
-  const customFoodInput = document.getElementById('entry_food_name');
-  
-  function updateMacros() {
-    const selectedOption = foodSelect.options[foodSelect.selectedIndex];
-    const grams = parseFloat(gramsInput.value) || 0;
-    
-    if (selectedOption.value && grams > 0) {
-      const calories = parseFloat(selectedOption.dataset.calories) || 0;
-      const carbs = parseFloat(selectedOption.dataset.carbs) || 0;
-      const protein = parseFloat(selectedOption.dataset.protein) || 0;
-      const fats = parseFloat(selectedOption.dataset.fats) || 0;
-      
-      const factor = grams / 100;
-      
-      document.getElementById('preview-calories').textContent = Math.round(calories * factor);
-      document.getElementById('preview-carbs').textContent = (carbs * factor).toFixed(1) + 'g';
-      document.getElementById('preview-protein').textContent = (protein * factor).toFixed(1) + 'g';
-      document.getElementById('preview-fats').textContent = (fats * factor).toFixed(1) + 'g';
-      
-      document.getElementById('per-100g-info').innerHTML = 
-        `Per 100g: ${calories} cal, ${carbs}g carbs, ${protein}g protein, ${fats}g fats`;
-      
-      macroPreview.style.display = 'block';
-    } else {
-      macroPreview.style.display = 'none';
-    }
-  }
-  
-  foodSelect.addEventListener('change', function() {
-    if (this.value) {
-      customFoodInput.value = '';
-    }
-    updateMacros();
-  });
-  
-  customFoodInput.addEventListener('input', function() {
-    if (this.value) {
-      foodSelect.value = '';
-      macroPreview.style.display = 'none';
-    }
-  });
-  
-  gramsInput.addEventListener('input', updateMacros);
-  
-  updateMacros();
-});
-</script>

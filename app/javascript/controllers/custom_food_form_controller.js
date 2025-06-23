@@ -1,35 +1,59 @@
 import { Controller } from "@hotwired/stimulus"
 
-console.log("custom_food_form_controller.js file loaded")
-
 export default class extends Controller {
-  static targets = [ "foodSelect", "customFields" ]
-
-  initialize() {
-    console.log("CustomFoodForm controller initialized")
-  }
+  static targets = [
+    "foodSelect",
+    "customFields",
+    "gramsInput",
+    "macroPreview",
+    "previewCalories",
+    "previewCarbs",
+    "previewProtein",
+    "previewFats",
+    "per100gInfo",
+    "foodNameInput",
+  ]
 
   connect() {
-    console.log("CustomFoodForm controller connected!")
-    console.log("Element:", this.element)
-    console.log("Has foodSelect target?", this.hasFoodSelectTarget)
-    console.log("Has customFields target?", this.hasCustomFieldsTarget)
+    this.updateMacros()
   }
 
-  disconnect() {
-    console.log("CustomFoodForm controller disconnected")
+  toggle() {
+    this.customFieldsTarget.classList.toggle('d-none');
+    this.foodSelectTarget.value = ''; // Clear food selection
+    this.updateMacros(); // Hide preview when toggling
   }
 
-  toggle(event) {
-    console.log("Toggle called!", event)
-    const isChecked = event.currentTarget.checked;
+  clearCustomFood() {
+    this.foodNameInputTarget.value = '';
+    this.updateMacros();
+  }
 
-    if (isChecked) {
-      this.foodSelectTarget.classList.add("d-none");
-      this.customFieldsTarget.classList.remove("d-none");
+  updateMacros() {
+    const selectedOption = this.foodSelectTarget.options[this.foodSelectTarget.selectedIndex];
+    const grams = parseFloat(this.gramsInputTarget.value) || 0;
+
+    if (selectedOption && selectedOption.value && grams > 0) {
+      const calories = parseFloat(selectedOption.dataset.calories) || 0;
+      const carbs = parseFloat(selectedOption.dataset.carbs) || 0;
+      const protein = parseFloat(selectedOption.dataset.protein) || 0;
+      const fats = parseFloat(selectedOption.dataset.fats) || 0;
+
+      const factor = grams / 100;
+
+      // Update the preview elements with calculated values
+      this.previewCaloriesTarget.textContent = Math.round(calories * factor);
+      this.previewCarbsTarget.textContent = `${(carbs * factor).toFixed(1)}g`;
+      this.previewProteinTarget.textContent = `${(protein * factor).toFixed(1)}g`;
+      this.previewFatsTarget.textContent = `${(fats * factor).toFixed(1)}g`;
+
+      this.per100gInfoTarget.innerHTML =
+          `Per 100g: ${calories} cal, ${carbs}g carbs, ${protein}g protein, ${fats}g fats`;
+
+      this.macroPreviewTarget.style.display = 'block';
     } else {
-      this.foodSelectTarget.classList.remove("d-none");
-      this.customFieldsTarget.classList.add("d-none");
+      // Hide the preview if no food is selected or grams are zero
+      this.macroPreviewTarget.style.display = 'none';
     }
   }
 }

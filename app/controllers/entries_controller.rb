@@ -13,7 +13,7 @@ class EntriesController < ApplicationController
   end
 
   def create
-    @entry = Entry.new(entry_params)
+    @entry = Entry.new(custom_food_params)
     
     if @entry.save
       redirect_to root_path, notice: 'Food entry added successfully!'
@@ -52,7 +52,7 @@ class EntriesController < ApplicationController
   end
 
   private
-  def entry_params
+  def custom_food_params
     params.require(:entry).permit(
       :food_id,
       :food_name,
