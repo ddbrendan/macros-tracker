@@ -18,32 +18,26 @@
           <% end %>
 
           <div class="mb-3" data-custom-food-form-target="foodSelectContainer">
-            <%= form.label :food_id, "Select Food", class: "form-label" %>
-            <select name="entry[food_id]"
-                    id="food_select"
-                    class="form-select"
-                    data-custom-food-form-target="foodSelect"
-                    data-action="change->custom-food-form#updateMacros">
-              <option value="">-- Select a food from database --</option>
-              <% @food_categories.each do |category| %>
-                <optgroup label="<%= category %>">
-                  <% @foods.where(category: category).each do |food| %>
-                    <option value="<%= food.id %>"
-                            data-calories="<%= food.calories_per_100g %>"
-                            data-carbs="<%= food.carbs_per_100g %>"
-                            data-protein="<%= food.protein_per_100g %>"
-                            data-fats="<%= food.fats_per_100g %>">
-                      <%= food.name %>
-                    </option>
-                  <% end %>
-                </optgroup>
-              <% end %>
-            </select>
+            <%= form.label :food_id, "Search for a food", class: "form-label" %>
+            
+            <%# This text input is what the user will type in. %>
+            <input type="text"
+                  id="food_search"
+                  class="form-control"
+                  list="food_options"
+                  autocomplete="off"
+                  data-custom-food-form-target="foodSearchInput"
+                  data-action="input->custom-food-form#search">
+
+            <%# The datalist will be dynamically populated with search results. %>
+            <datalist id="food_options" data-custom-food-form-target="foodOptions"></datalist>
+
+            <%# This hidden field will store the actual food_id for the form submission. %>
+            <%= form.hidden_field :food_id, data: { 'custom-food-form-target': "foodIdInput" } %>
           </div>
 
           <div class="mb-3">
             <label class="form-check-label">
-              <%# ADDED: The target for the checkbox itself %>
               <%= form.check_box :custom, { "data-action": "change->custom-food-form#toggle", "data-custom-food-form-target": "checkbox" }, "1", "0" %>
               Enter a custom food
             </label>
