@@ -41,10 +41,9 @@ export default class extends Controller {
 
     // Clear the now-hidden inputs to ensure clean data submission
     if (isCustom) {
-      this.foodSelectTarget.value = ''; // Clear food selection
+      this.foodSelectTarget.value = '';
     } else {
-      this.foodNameInputTarget.value = ''; // Clear custom food name
-      // Optionally clear all custom macro fields for a cleaner state
+      this.foodNameInputTarget.value = '';
       this.customCaloriesInputTarget.value = '';
       this.customCarbsInputTarget.value = '';
       this.customProteinInputTarget.value = '';
@@ -89,7 +88,7 @@ export default class extends Controller {
   }
 
   private
-  
+
   _displayPreview(macros, grams) {
     const factor = grams / 100;
 
