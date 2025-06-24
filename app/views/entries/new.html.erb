@@ -17,7 +17,7 @@
             </div>
           <% end %>
 
-          <div class="mb-3">
+          <div class="mb-3" data-custom-food-form-target="foodSelectContainer">
             <%= form.label :food_id, "Select Food", class: "form-label" %>
             <select name="entry[food_id]"
                     id="food_select"
@@ -43,7 +43,6 @@
 
           <div class="mb-3">
             <label class="form-check-label">
-              <%# The data-action triggers the 'toggle' method in the controller %>
               <%= form.check_box :custom, { "data-action": "change->custom-food-form#toggle" }, "1", "0" %>
               Enter a custom food
             </label>

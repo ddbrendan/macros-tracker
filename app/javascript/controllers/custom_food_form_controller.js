@@ -3,6 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "foodSelect",
+    "foodSelectContainer",
     "customFields",
     "gramsInput",
     "macroPreview",
@@ -18,9 +19,21 @@ export default class extends Controller {
     this.updateMacros()
   }
 
-  toggle() {
-    this.customFieldsTarget.classList.toggle('d-none');
-    this.foodSelectTarget.value = ''; // Clear food selection
+  toggle(event) {
+    const isCustom = event.target.checked;
+    
+    if (isCustom) {
+      // Show custom fields, hide food select
+      this.customFieldsTarget.classList.remove('d-none');
+      this.foodSelectContainerTarget.classList.add('d-none');
+      this.foodSelectTarget.value = ''; // Clear food selection
+    } else {
+      // Hide custom fields, show food select
+      this.customFieldsTarget.classList.add('d-none');
+      this.foodSelectContainerTarget.classList.remove('d-none');
+      this.foodNameInputTarget.value = ''; // Clear custom food name
+    }
+    
     this.updateMacros(); // Hide preview when toggling
   }
 
