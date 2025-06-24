@@ -14,9 +14,9 @@ class EntriesController < ApplicationController
 
   def create
     @entry = Entry.new(custom_food_params)
-    
+
     if @entry.save
-      redirect_to root_path, notice: 'Food entry added successfully!'
+      redirect_to root_path, notice: "Food entry added successfully!"
     else
       @foods = Food.all.order(:name)
       @food_categories = Food.distinct.pluck(:category).compact.sort
@@ -27,17 +27,17 @@ class EntriesController < ApplicationController
   def destroy
     @entry = Entry.find(params[:id])
     @entry.destroy
-    redirect_to root_path, notice: 'Entry deleted successfully!'
+    redirect_to root_path, notice: "Entry deleted successfully!"
   end
 
   def food_macros
     food = Food.find_by(id: params[:food_id])
     grams = params[:grams].to_f
-    
+
     if food && grams > 0
       macros = food.calculate_macros(grams)
-      render json: { 
-        success: true, 
+      render json: {
+        success: true,
         macros: macros,
         per_100g: {
           calories: food.calories_per_100g,

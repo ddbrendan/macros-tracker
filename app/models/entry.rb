@@ -53,9 +53,9 @@ class Entry < ApplicationRecord
   def calculated_macros
     @calculated_macros ||= if custom_entry?
                              calculate_custom_macros
-                           else
+    else
                              food&.calculate_macros(grams) || {}
-                           end
+    end
   end
 
   # Calculates macros for a custom food entry.
