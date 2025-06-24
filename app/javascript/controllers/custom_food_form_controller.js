@@ -109,6 +109,15 @@ export default class extends Controller {
           item.dataset.protein = food.protein_per_100g;
           item.dataset.fats = food.fats_per_100g;
           item.textContent = food.name;
+
+          item.innerHTML = `
+          <div class="item-content">
+            <div class="item-name">${food.name}</div>
+            <div class="item-macros">
+              Kcal: ${food.calories_per_100g} | P: ${food.protein_per_100g}g | C: ${food.carbs_per_100g}g | F: ${food.fats_per_100g}g
+            </div>
+          </div>
+        `;
           this.foodOptionsTarget.appendChild(item);
         });
         this.foodOptionsTarget.classList.add('active'); // Show the dropdown
@@ -118,14 +127,12 @@ export default class extends Controller {
     });
   }
 
-  // Calculates and displays macros based on the current form state.
   updateMacros() {
     const grams = parseFloat(this.gramsInputTarget.value) || 0;
     const isCustom = this.checkboxTarget.checked;
     let baseMacros = null;
 
     if (isCustom) {
-      // Logic for custom food entry remains the same
       baseMacros = {
         calories: parseFloat(this.customCaloriesInputTarget.value) || 0,
         carbs: parseFloat(this.customCarbsInputTarget.value) || 0,
@@ -133,7 +140,6 @@ export default class extends Controller {
         fats: parseFloat(this.customFatsInputTarget.value) || 0,
       };
     } else {
-      // **REVISED LOGIC**: Use the stored data from the selected food
       if (this.selectedFoodData) {
         baseMacros = this.selectedFoodData;
       }
@@ -145,8 +151,6 @@ export default class extends Controller {
       this._hidePreview();
     }
   }
-
-  // --- Other methods (toggle, debounce, _displayPreview, _hidePreview) remain the same ---
 
   toggle() {
     const isCustom = this.checkboxTarget.checked;

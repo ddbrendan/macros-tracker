@@ -106,3 +106,67 @@ body {
   background-color: #e9ecef; /* A light grey for hover/active state */
   color: #495057;
 }
+/* app/assets/stylesheets/your_stylesheet.css */
+
+/* --- Existing Styles (for context) --- */
+.custom-dropdown {
+  position: relative;
+}
+
+.dropdown-results {
+  display: none;
+  position: absolute;
+  width: 100%;
+  border: 1px solid #ced4da;
+  border-top: none;
+  border-radius: 0 0 0.25rem 0.25rem;
+  background-color: white;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 1050;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-results.active {
+  display: block;
+}
+
+/* --- Revised and New Styles --- */
+.dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid #e9ecef;
+  transition: background-color 0.15s ease-in-out;
+  /* Using flexbox to allow for better alignment */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item:hover, .dropdown-item.is-active {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+/* Style for the main content wrapper inside the item */
+.item-content {
+  /* Takes up all available space */
+  flex-grow: 1;
+}
+
+/* Style for the food name */
+.item-name {
+  font-weight: 500;
+  color: #212529;
+  margin-bottom: 0.15rem; /* Small space between name and macros */
+}
+
+/* Style for the macro details */
+.item-macros {
+  font-size: 0.8rem;   /* Smaller font size */
+  color: #6c757d;    /* A secondary, muted color */
+}
