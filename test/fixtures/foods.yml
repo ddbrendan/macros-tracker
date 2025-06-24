@@ -1,17 +1,17 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
-  calories_per_100g: 9.99
-  carbs_per_100g: 9.99
-  protein_per_100g: 9.99
-  fats_per_100g: 9.99
-  category: MyString
+  name: Apple
+  calories_per_100g: 52.0
+  carbs_per_100g: 13.8
+  protein_per_100g: 0.3
+  fats_per_100g: 0.2
+  category: Fruit
 
 two:
-  name: MyString
-  calories_per_100g: 9.99
-  carbs_per_100g: 9.99
-  protein_per_100g: 9.99
-  fats_per_100g: 9.99
-  category: MyString
+  name: Chicken Breast
+  calories_per_100g: 165.0
+  carbs_per_100g: 0.0
+  protein_per_100g: 31.0
+  fats_per_100g: 3.6
+  category: Meat

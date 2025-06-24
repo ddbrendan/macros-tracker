@@ -1,11 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  food_name: MyString
-  calories: 1
+  food: one
+  grams: 100.0
   date: 2025-06-10
 
 two:
-  food_name: MyString
-  calories: 1
+  food_name: Custom Food
+  grams: 150.0
+  custom_calories_per_100g: 250.0
+  custom_carbs_per_100g: 30.0
+  custom_protein_per_100g: 20.0
+  custom_fats_per_100g: 10.0
   date: 2025-06-10
