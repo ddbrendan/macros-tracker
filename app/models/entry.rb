@@ -62,10 +62,10 @@ class Entry < ApplicationRecord
   def calculate_custom_macros
     factor = grams / 100.0
     {
-      calories: (custom_calories_per_100g || 0 * factor),
-      carbs: (custom_carbs_per_100g || 0 * factor),
-      protein: (custom_protein_per_100g || 0 * factor),
-      fats: (custom_fats_per_100g || 0 * factor)
+      calories: (custom_calories_per_100g || 0) * factor,
+      carbs: (custom_carbs_per_100g || 0) * factor,
+      protein: (custom_protein_per_100g || 0) * factor,
+      fats: (custom_fats_per_100g || 0) * factor
     }
   end
 
