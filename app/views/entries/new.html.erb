@@ -23,7 +23,7 @@
                     id="food_select"
                     class="form-select"
                     data-custom-food-form-target="foodSelect"
-                    data-action="change->custom-food-form#clearCustomFood">
+                    data-action="change->custom-food-form#updateMacros">
               <option value="">-- Select a food from database --</option>
               <% @food_categories.each do |category| %>
                 <optgroup label="<%= category %>">
@@ -43,12 +43,12 @@
 
           <div class="mb-3">
             <label class="form-check-label">
-              <%= form.check_box :custom, { "data-action": "change->custom-food-form#toggle" }, "1", "0" %>
+              <%# ADDED: The target for the checkbox itself %>
+              <%= form.check_box :custom, { "data-action": "change->custom-food-form#toggle", "data-custom-food-form-target": "checkbox" }, "1", "0" %>
               Enter a custom food
             </label>
           </div>
 
-          <%# This section's visibility is controlled by the 'toggle' method %>
           <div data-custom-food-form-target="customFields" class="d-none">
             <div class="mb-3">
               <%= form.label :food_name, 'Custom Food Name', class: 'form-label' %>
@@ -56,19 +56,19 @@
             </div>
             <div class="mb-3">
               <%= form.label :custom_calories_per_100g, class: 'form-label' %>
-              <%= form.number_field :custom_calories_per_100g, class: 'form-control', step: :any %>
+              <%= form.number_field :custom_calories_per_100g, class: 'form-control', step: :any, "data-custom-food-form-target": "customCaloriesInput", "data-action": "input->custom-food-form#updateMacros" %>
             </div>
             <div class="mb-3">
               <%= form.label :custom_carbs_per_100g, class: 'form-label' %>
-              <%= form.number_field :custom_carbs_per_100g, class: 'form-control', step: :any %>
+              <%= form.number_field :custom_carbs_per_100g, class: 'form-control', step: :any, "data-custom-food-form-target": "customCarbsInput", "data-action": "input->custom-food-form#updateMacros" %>
             </div>
             <div class="mb-3">
               <%= form.label :custom_protein_per_100g, class: 'form-label' %>
-              <%= form.number_field :custom_protein_per_100g, class: 'form-control', step: :any %>
+              <%= form.number_field :custom_protein_per_100g, class: 'form-control', step: :any, "data-custom-food-form-target": "customProteinInput", "data-action": "input->custom-food-form#updateMacros" %>
             </div>
             <div class="mb-3">
               <%= form.label :custom_fats_per_100g, class: 'form-label' %>
-              <%= form.number_field :custom_fats_per_100g, class: 'form-control', step: :any %>
+              <%= form.number_field :custom_fats_per_100g, class: 'form-control', step: :any, "data-custom-food-form-target": "customFatsInput", "data-action": "input->custom-food-form#updateMacros" %>
             </div>
           </div>
 

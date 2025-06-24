@@ -2,71 +2,109 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = [
-    "foodSelect",
+    "checkbox",
+
+    // Form Sections
     "foodSelectContainer",
     "customFields",
+
+    // Data Sources
+    "foodSelect",
     "gramsInput",
+    "foodNameInput",
+    "customCaloriesInput",
+    "customCarbsInput",
+    "customProteinInput",
+    "customFatsInput",
+
+    // Macro Preview Elements
     "macroPreview",
     "previewCalories",
     "previewCarbs",
     "previewProtein",
     "previewFats",
     "per100gInfo",
-    "foodNameInput",
   ]
 
   connect() {
-    this.updateMacros()
+    // Set the initial state of the form to match the checkbox on page load.
+    this.toggle();
   }
 
-  toggle(event) {
-    const isCustom = event.target.checked;
-    
+  toggle() {
+    // Read the state directly from the checkbox target.
+    const isCustom = this.checkboxTarget.checked;
+
+    // Set visibility based on the checkbox state
+    this.customFieldsTarget.classList.toggle('d-none', !isCustom);
+    this.foodSelectContainerTarget.classList.toggle('d-none', isCustom);
+
+    // Clear the now-hidden inputs to ensure clean data submission
     if (isCustom) {
-      // Show custom fields, hide food select
-      this.customFieldsTarget.classList.remove('d-none');
-      this.foodSelectContainerTarget.classList.add('d-none');
       this.foodSelectTarget.value = ''; // Clear food selection
     } else {
-      // Hide custom fields, show food select
-      this.customFieldsTarget.classList.add('d-none');
-      this.foodSelectContainerTarget.classList.remove('d-none');
       this.foodNameInputTarget.value = ''; // Clear custom food name
+      // Optionally clear all custom macro fields for a cleaner state
+      this.customCaloriesInputTarget.value = '';
+      this.customCarbsInputTarget.value = '';
+      this.customProteinInputTarget.value = '';
+      this.customFatsInputTarget.value = '';
     }
     
-    this.updateMacros(); // Hide preview when toggling
-  }
-
-  clearCustomFood() {
-    this.foodNameInputTarget.value = '';
+    // Re-calculate macros after any state change
     this.updateMacros();
   }
 
   updateMacros() {
-    const selectedOption = this.foodSelectTarget.options[this.foodSelectTarget.selectedIndex];
     const grams = parseFloat(this.gramsInputTarget.value) || 0;
+    const isCustom = this.checkboxTarget.checked; // <-- Always trust the checkbox
+    let baseMacros = null;
 
-    if (selectedOption && selectedOption.value && grams > 0) {
-      const calories = parseFloat(selectedOption.dataset.calories) || 0;
-      const carbs = parseFloat(selectedOption.dataset.carbs) || 0;
-      const protein = parseFloat(selectedOption.dataset.protein) || 0;
-      const fats = parseFloat(selectedOption.dataset.fats) || 0;
-
-      const factor = grams / 100;
-
-      // Update the preview elements with calculated values
-      this.previewCaloriesTarget.textContent = Math.round(calories * factor);
-      this.previewCarbsTarget.textContent = `${(carbs * factor).toFixed(1)}g`;
-      this.previewProteinTarget.textContent = `${(protein * factor).toFixed(1)}g`;
-      this.previewFatsTarget.textContent = `${(fats * factor).toFixed(1)}g`;
-
-      this.per100gInfoTarget.innerHTML =
-          `Per 100g: ${calories} cal, ${carbs}g carbs, ${protein}g protein, ${fats}g fats`;
-
-      this.macroPreviewTarget.style.display = 'block';
+    if (isCustom) {
+      // Logic for custom food entry
+      baseMacros = {
+        calories: parseFloat(this.customCaloriesInputTarget.value) || 0,
+        carbs: parseFloat(this.customCarbsInputTarget.value) || 0,
+        protein: parseFloat(this.customProteinInputTarget.value) || 0,
+        fats: parseFloat(this.customFatsInputTarget.value) || 0,
+      };
     } else {
-      // Hide the preview if no food is selected or grams are zero
-      this.macroPreviewTarget.style.display = 'none';
+      // Logic for selected food from the database
+      const selectedOption = this.foodSelectTarget.options[this.foodSelectTarget.selectedIndex];
+      if (selectedOption && selectedOption.value) {
+        baseMacros = {
+          calories: parseFloat(selectedOption.dataset.calories) || 0,
+          carbs: parseFloat(selectedOption.dataset.carbs) || 0,
+          protein: parseFloat(selectedOption.dataset.protein) || 0,
+          fats: parseFloat(selectedOption.dataset.fats) || 0,
+        };
+      }
     }
+
+    if (baseMacros && grams > 0) {
+      this._displayPreview(baseMacros, grams);
+    } else {
+      this._hidePreview();
+    }
+  }
+
+  private
+  
+  _displayPreview(macros, grams) {
+    const factor = grams / 100;
+
+    this.previewCaloriesTarget.textContent = Math.round(macros.calories * factor);
+    this.previewCarbsTarget.textContent = `${(macros.carbs * factor).toFixed(1)}g`;
+    this.previewProteinTarget.textContent = `${(macros.protein * factor).toFixed(1)}g`;
+    this.previewFatsTarget.textContent = `${(macros.fats * factor).toFixed(1)}g`;
+
+    this.per100gInfoTarget.innerHTML =
+      `Per 100g: ${macros.calories} cal, ${macros.carbs}g carbs, ${macros.protein}g protein, ${macros.fats}g fats`;
+
+    this.macroPreviewTarget.style.display = 'block';
+  }
+
+  _hidePreview() {
+    this.macroPreviewTarget.style.display = 'none';
   }
 }
