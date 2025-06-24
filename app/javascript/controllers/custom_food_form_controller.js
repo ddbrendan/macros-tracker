@@ -1,3 +1,5 @@
+// app/javascript/controllers/custom_food_form_controller.js
+
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -24,53 +26,66 @@ export default class extends Controller {
 
   connect() {
     this.toggle();
-    // Debounce the search function to avoid sending too many requests while typing
     this.performSearch = this.debounce(this.performSearch, 300);
+    this.selectedFoodData = null; // Property to hold the selected food's attributes
+
+    // Add a global click listener to hide the dropdown when clicking outside
+    this.boundHideDropdown = this.hideDropdown.bind(this);
+    document.addEventListener('click', this.boundHideDropdown);
   }
 
-  // This is the main action called when the user types in the search box.
-  search() {
-    this.updateSelectedFood();
-    this.performSearch();
-    this.updateMacros();
+  disconnect() {
+    // Clean up the event listener when the controller is disconnected
+    document.removeEventListener('click', this.boundHideDropdown);
   }
 
-  // Called when the "Custom Food" checkbox is toggled.
-  toggle() {
-    const isCustom = this.checkboxTarget.checked;
-
-    this.customFieldsTarget.classList.toggle('d-none', !isCustom);
-    this.foodSelectContainerTarget.classList.toggle('d-none', isCustom);
-
-    if (isCustom) {
-      // Clear food search and ID when switching to custom
-      this.foodSearchInputTarget.value = '';
-      if (this.hasFoodIdInputTarget) this.foodIdInputTarget.value = '';
-    } else {
-      // Clear custom fields when switching back to database search
-      this.foodNameInputTarget.value = '';
-      this.customCaloriesInputTarget.value = '';
-      this.customCarbsInputTarget.value = '';
-      this.customProteinInputTarget.value = '';
-      this.customFatsInputTarget.value = '';
+  // Hide the dropdown unless the click was inside the controller's element
+  hideDropdown(event) {
+    if (event && this.element.contains(event.target)) {
+      return;
     }
-    
+    if (this.hasFoodOptionsTarget) {
+      this.foodOptionsTarget.classList.remove('active');
+    }
+  }
+
+  // The main action called when the user types in the search box.
+  search() {
+    // When a user types, we assume they are searching for a new food,
+    // so we clear the previously selected ID and data.
+    this.foodIdInputTarget.value = '';
+    this.selectedFoodData = null;
+    this.updateMacros(); // Clear the preview
+    this.performSearch();
+  }
+
+  // Called when a user clicks a food item in the dropdown.
+  selectFood(event) {
+    event.preventDefault(); // Prevent any default browser action
+
+    const selectedItem = event.currentTarget;
+    this.foodSearchInputTarget.value = selectedItem.dataset.foodName;
+    this.foodIdInputTarget.value = selectedItem.dataset.foodId;
+
+    // Store the selected food's attributes directly on the controller
+    this.selectedFoodData = {
+      calories: parseFloat(selectedItem.dataset.calories),
+      carbs: parseFloat(selectedItem.dataset.carbs),
+      protein: parseFloat(selectedItem.dataset.protein),
+      fats: parseFloat(selectedItem.dataset.fats),
+    };
+
+    // Manually hide the dropdown and update macros
+    this.foodOptionsTarget.classList.remove('active');
     this.updateMacros();
   }
 
-  // Checks if the current input value matches a food in the datalist and updates the hidden ID field.
-  updateSelectedFood() {
-    const inputValue = this.foodSearchInputTarget.value;
-    const selectedOption = Array.from(this.foodOptionsTarget.options).find(opt => opt.value === inputValue);
-
-    this.foodIdInputTarget.value = selectedOption ? selectedOption.dataset.foodId : '';
-  }
-  
-  // Fetches food data from the server based on the user's query.
+  // Fetches food data and builds the dropdown with divs.
   performSearch() {
     const query = this.foodSearchInputTarget.value;
 
     if (query.length < 2) {
+      this.foodOptionsTarget.classList.remove('active');
       this.foodOptionsTarget.innerHTML = '';
       return;
     }
@@ -80,29 +95,37 @@ export default class extends Controller {
     })
     .then(response => response.json())
     .then(foods => {
-      this.foodOptionsTarget.innerHTML = '';
-      foods.forEach(food => {
-        const option = document.createElement('option');
-        option.value = food.name;
-        // Store all necessary data on the option element for later use
-        option.dataset.foodId = food.id;
-        option.dataset.calories = food.calories_per_100g;
-        option.dataset.carbs = food.carbs_per_100g;
-        option.dataset.protein = food.protein_per_100g;
-        option.dataset.fats = food.fats_per_100g;
-        this.foodOptionsTarget.appendChild(option);
-      });
+      this.foodOptionsTarget.innerHTML = ''; // Clear previous results
+      if (foods.length > 0) {
+        foods.forEach(food => {
+          const item = document.createElement('div');
+          item.classList.add('dropdown-item');
+          // Set data attributes for all necessary food info
+          item.dataset.action = 'click->custom-food-form#selectFood';
+          item.dataset.foodId = food.id;
+          item.dataset.foodName = food.name;
+          item.dataset.calories = food.calories_per_100g;
+          item.dataset.carbs = food.carbs_per_100g;
+          item.dataset.protein = food.protein_per_100g;
+          item.dataset.fats = food.fats_per_100g;
+          item.textContent = food.name;
+          this.foodOptionsTarget.appendChild(item);
+        });
+        this.foodOptionsTarget.classList.add('active'); // Show the dropdown
+      } else {
+        this.foodOptionsTarget.classList.remove('active'); // Hide if no results
+      }
     });
   }
 
-  // Calculates and displays the macros based on the current form state.
+  // Calculates and displays macros based on the current form state.
   updateMacros() {
     const grams = parseFloat(this.gramsInputTarget.value) || 0;
     const isCustom = this.checkboxTarget.checked;
     let baseMacros = null;
 
     if (isCustom) {
-      // Logic for custom food entry
+      // Logic for custom food entry remains the same
       baseMacros = {
         calories: parseFloat(this.customCaloriesInputTarget.value) || 0,
         carbs: parseFloat(this.customCarbsInputTarget.value) || 0,
@@ -110,17 +133,9 @@ export default class extends Controller {
         fats: parseFloat(this.customFatsInputTarget.value) || 0,
       };
     } else {
-      // **FIXED LOGIC**: Get data from the search datalist, not the old select element.
-      const inputValue = this.foodSearchInputTarget.value;
-      const selectedOption = Array.from(this.foodOptionsTarget.options).find(opt => opt.value === inputValue);
-      
-      if (selectedOption) {
-        baseMacros = {
-          calories: parseFloat(selectedOption.dataset.calories) || 0,
-          carbs: parseFloat(selectedOption.dataset.carbs) || 0,
-          protein: parseFloat(selectedOption.dataset.protein) || 0,
-          fats: parseFloat(selectedOption.dataset.fats) || 0,
-        };
+      // **REVISED LOGIC**: Use the stored data from the selected food
+      if (this.selectedFoodData) {
+        baseMacros = this.selectedFoodData;
       }
     }
 
@@ -131,9 +146,26 @@ export default class extends Controller {
     }
   }
 
-  // --- Helper and Private Methods ---
+  // --- Other methods (toggle, debounce, _displayPreview, _hidePreview) remain the same ---
 
-  // Simple debounce function to delay execution and prevent excessive server requests.
+  toggle() {
+    const isCustom = this.checkboxTarget.checked;
+    this.customFieldsTarget.classList.toggle('d-none', !isCustom);
+    this.foodSelectContainerTarget.classList.toggle('d-none', isCustom);
+    if (isCustom) {
+      this.foodSearchInputTarget.value = '';
+      if (this.hasFoodIdInputTarget) this.foodIdInputTarget.value = '';
+      this.selectedFoodData = null;
+    } else {
+      this.foodNameInputTarget.value = '';
+      this.customCaloriesInputTarget.value = '';
+      this.customCarbsInputTarget.value = '';
+      this.customProteinInputTarget.value = '';
+      this.customFatsInputTarget.value = '';
+    }
+    this.updateMacros();
+  }
+
   debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -145,15 +177,12 @@ export default class extends Controller {
 
   _displayPreview(macros, grams) {
     const factor = grams / 100;
-
     this.previewCaloriesTarget.textContent = Math.round(macros.calories * factor);
     this.previewCarbsTarget.textContent = `${(macros.carbs * factor).toFixed(1)}g`;
     this.previewProteinTarget.textContent = `${(macros.protein * factor).toFixed(1)}g`;
     this.previewFatsTarget.textContent = `${(macros.fats * factor).toFixed(1)}g`;
-
     this.per100gInfoTarget.innerHTML =
       `Per 100g: ${macros.calories} cal, ${macros.carbs}g carbs, ${macros.protein}g protein, ${macros.fats}g fats`;
-
     this.macroPreviewTarget.style.display = 'block';
   }
 

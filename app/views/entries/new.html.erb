@@ -17,20 +17,27 @@
             </div>
           <% end %>
 
+          <%# app/views/your_form_folder/_form.html.erb %>
+
           <div class="mb-3" data-custom-food-form-target="foodSelectContainer">
             <%= form.label :food_id, "Search for a food", class: "form-label" %>
-            
-            <%# This text input is what the user will type in. %>
-            <input type="text"
-                  id="food_search"
-                  class="form-control"
-                  list="food_options"
-                  autocomplete="off"
-                  data-custom-food-form-target="foodSearchInput"
-                  data-action="input->custom-food-form#search">
 
-            <%# The datalist will be dynamically populated with search results. %>
-            <datalist id="food_options" data-custom-food-form-target="foodOptions"></datalist>
+            <%# This container helps position the dropdown results relative to the input. %>
+            <div class="custom-dropdown">
+              <%# This text input is what the user will type in. %>
+              <input type="text"
+                    id="food_search"
+                    class="form-control"
+                    placeholder="Start typing a food name..."
+                    autocomplete="off"
+                    data-custom-food-form-target="foodSearchInput"
+                    data-action="input->custom-food-form#search focus->custom-food-form#search click->custom-food-form#search">
+
+              <%# The results div will be dynamically populated with search results. %>
+              <div class="dropdown-results" data-custom-food-form-target="foodOptions">
+                <%# Search results will be inserted here by Stimulus %>
+              </div>
+            </div>
 
             <%# This hidden field will store the actual food_id for the form submission. %>
             <%= form.hidden_field :food_id, data: { 'custom-food-form-target': "foodIdInput" } %>
