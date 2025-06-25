@@ -5,6 +5,7 @@ class Entry < ApplicationRecord
   attr_accessor :custom
 
   belongs_to :food, optional: true
+  belongs_to :user
 
   validates :date, presence: true
   validates :grams, presence: true, numericality: { greater_than: 0 }

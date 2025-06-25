@@ -1,6 +1,6 @@
 class EntriesController < ApplicationController
   def index
-    @entries = Entry.includes(:food).order(date: :desc, created_at: :desc)
+    @entries = current_user.entries.includes(:food).order(date: :desc, created_at: :desc)
     @entries_by_date = @entries.group_by(&:date)
   end
 
@@ -13,7 +13,7 @@ class EntriesController < ApplicationController
   end
 
   def create
-    @entry = Entry.new(custom_food_params)
+    @entry = current_user.entries.new(custom_food_params)
 
     if @entry.save
       redirect_to root_path, notice: "Food entry added successfully!"

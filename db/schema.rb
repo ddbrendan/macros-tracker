@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_25_070553) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_25_082627) do
   create_table "entries", force: :cascade do |t|
     t.string "food_name"
     t.date "date"
@@ -22,7 +22,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_25_070553) do
     t.decimal "custom_carbs_per_100g"
     t.decimal "custom_protein_per_100g"
     t.decimal "custom_fats_per_100g"
+    t.integer "user_id", null: false
     t.index ["food_id"], name: "index_entries_on_food_id"
+    t.index ["user_id"], name: "index_entries_on_user_id"
   end
 
   create_table "foods", force: :cascade do |t|
@@ -51,4 +53,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_25_070553) do
   end
 
   add_foreign_key "entries", "foods"
+  add_foreign_key "entries", "users"
 end
